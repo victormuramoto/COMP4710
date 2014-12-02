@@ -1,6 +1,12 @@
 #!/bin/bash
 
-home_path='http://hearthstats.net/decks/public?utf8=%E2%9C%93&q[klass_id_eq]=&q[unique_deck_created_at_gteq]=2014-11-19+07%3A10%3A03+UTC&q[unique_deck_num_matches_gteq]=30&q[name_cont]=&items=100&sort=winrate&order=desc'
+aux=$(date -v-30d "+%Y %m %d")
+_yyyy=$(echo $aux | cut -d' ' -f1)
+_mm=$(echo $aux | cut -d' ' -f2)
+_dd=$(echo $aux | cut -d' ' -f3)
+
+home_path="http://hearthstats.net/decks/public?utf8=%E2%9C%93&q[klass_id_eq]=1&q[unique_deck_created_at_gteq]=$_yyyy-$_mm-$_dd+00%3A00%3A00+UTC&q[unique_deck_num_matches_gteq]=35&q[name_cont]=&items=100&sort=winrate&order=desc"
+echo $home_path
 
 url_list=$(wget -q $home_path -O - | grep '<td class="name">' | cut -d\" -f4)
 
