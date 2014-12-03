@@ -6,6 +6,7 @@
 #pprint(data)
 #json_data.close         
 
+import sys
 import apriorialg as ap
 from collections import Counter
 
@@ -28,8 +29,12 @@ def load_dataset():
 	
 	return dataset
 
-minsupport = 0.3
-min_confidence = 0.7
+arg = sys.argv[1:]
+
+print arg
+
+minsupport = float(arg[0])
+min_confidence = float(arg[1])
 	
 dataset = load_dataset()
 
