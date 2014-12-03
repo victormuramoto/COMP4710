@@ -8,24 +8,29 @@
 
 from collections import Counter
 
-f = open('data.txt')
-count = Counter()
-i = 0
-transactions = dict()
-for line in f:
-    line = line.strip()    
-    if i == 0:
-        url = line
-    if i == 31:
-        print 'this is a count'
-        transactions[url] = count        
-        print transactions[url]
-        count.clear()
-        i= 0
-    count[line] += 1
-    i = i +1
-    #for x in range(1,32):
-     #   print line
+def load_dataset():
+	f = open('data.txt')
+	heroes = f.readline().strip().split()
+
+	dataset = list()
+
+	for k in range(1,10):
+		N = int(f.readline().strip())
+		for i in range(N):
+			name = f.readline().strip()
+			line = f.readline().strip().split()
+			c = Counter(line)
+			transaction = c.items()
+			transaction.insert(0,heroes[k]);
+			#print name, c
+			dataset.append(transaction)
+	
+	return dataset
+	
+dataset = load_dataset()
+
+print dataset
+		
     
 
     
