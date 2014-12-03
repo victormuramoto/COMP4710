@@ -6,6 +6,7 @@
 #pprint(data)
 #json_data.close         
 
+import apriorialg as ap
 from collections import Counter
 
 def load_dataset():
@@ -26,10 +27,18 @@ def load_dataset():
 			dataset.append(transaction)
 	
 	return dataset
+
+minsupport = 0.5
+min_confidence = 0.7
 	
 dataset = load_dataset()
 
-print dataset
+L, support_data = ap.apriori(dataset, minsupport)
+rules = ap.generateRules(L, support_data, min_confidence)
+
+print 'L:\n', L
+print '\nSupport data:\n', support_data
+print '\nRules:\n', rules
 		
     
 
