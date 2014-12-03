@@ -28,7 +28,7 @@ def load_dataset():
 	
 	return dataset
 
-minsupport = 0.5
+minsupport = 0.3
 min_confidence = 0.7
 	
 dataset = load_dataset()
@@ -36,9 +36,13 @@ dataset = load_dataset()
 L, support_data = ap.apriori(dataset, minsupport)
 rules = ap.generateRules(L, support_data, min_confidence)
 
-print 'L:\n', L
-print '\nSupport data:\n', support_data
-print '\nRules:\n', rules
+print 'L:'
+for l in L:
+	print " -", l
+#print '\nSupport data:\n', support_data
+print '\nRules:'
+for rule in rules:
+	print " -", rule
 		
     
 
