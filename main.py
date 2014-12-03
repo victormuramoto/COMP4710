@@ -13,9 +13,7 @@ from collections import Counter
 def load_dataset():
 	f = open('data.txt')
 	heroes = f.readline().strip().split()
-
 	dataset = list()
-
 	for k in range(1,10):
 		N = int(f.readline().strip())
 		for i in range(N):
@@ -24,7 +22,6 @@ def load_dataset():
 			c = Counter(line)
 			transaction = c.items()
 			transaction.insert(0,heroes[k]);
-			#print name, c
 			dataset.append(transaction)
 	
 	return dataset
@@ -41,14 +38,12 @@ dataset = load_dataset()
 L, support_data = ap.apriori(dataset, minsupport)
 rules = ap.generateRules(L, support_data, min_confidence)
 
-print 'L:'
+print '\nL:'
 for l in L:
-	print " -", l
+	print " * ", l, "\n"
 #print '\nSupport data:\n', support_data
 print '\nRules:'
 for rule in rules:
-	print " -", rule
+	print " - ", rule, "\n"
 		
-    
-
     
