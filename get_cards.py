@@ -18,16 +18,8 @@ for n, fname in enumerate(('1.png', '2.png','3.png')):
 pylab.show()
 '''
 
-import json
-from pprint import pprint
-json_data = open('AllSets.json')
-data = json.load(json_data)
-pprint(data)
-json_data.close         
-r = next(iter(rule[0]))
 
 
-'''
 root = Toplevel()
 url = urllib.urlretrieve('https://s3-us-west-2.amazonaws.com/hearthstats/cards/leeroy-jenkins.png',"leeroy_jenkins.png")
 logo = ImageTk.PhotoImage(Image.open('leeroy_jenkins.png'))
@@ -41,4 +33,3 @@ w2 = Label(root,
            padx = 10, 
            text=explanation).pack(side="right")
 root.mainloop()
-'''
