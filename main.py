@@ -19,7 +19,8 @@ arg = sys.argv[1:]
 
 def load_dataset():
 	f = open('data.txt')
-	heroes = f.readline().strip().split()
+	heroes = tuple(f.readline().strip().split())
+	print type(heroes)
 	dataset = list()
 	for k in range(1,10):
 		N = int(f.readline().strip())
@@ -35,14 +36,15 @@ def load_dataset():
 			transaction.append(heroes[k]);
 			dataset.append(transaction)
 		
-	return dataset
+	return heroes, dataset
+
 
 img_domain = 'https://s3-us-west-2.amazonaws.com/hearthstats/cards/'
 
 minsupport = float(arg[0])
 min_confidence = float(arg[1])
 	
-dataset = load_dataset()
+heroes, dataset = load_dataset()
 
 L, support_data = ap.apriori(dataset, minsupport)
 rules = ap.generateRules(L, support_data, min_confidence)
@@ -51,15 +53,16 @@ print '\nL:'
 for l in L:
 	print " * ", l
 
-#print '\nSupport data:\n', support_data
+# removing obvious rules:
 print '\nRules:'
-for rule in rules:
-	print " - ", rule
-
+for rule in rules[:]:
+	if(rule[2] == 1.0 and len(rule[1]) == 1):
+		r = next(iter(rule[1]))
+		if(r in heroes):
+			print " - ", rule
+			rules.remove(rule)
+	else:
+		print " + ", rule
+	
 		
-# argumentos para a DP:
-# - eliminar todos os itens de L que contenham alguma carta que não pertença ao deck
-# - peso da mochila é igual à quantidade de cartas inseridas
-# - V será medido pela radiciação de grau igual a quantidade de itemsets sobre o valor da 
-# multiplicação do support de cada itemset envolvido.
-# - o resultado da D.P. dará o valor da sinergia / coerência do Deck. 
+ 
