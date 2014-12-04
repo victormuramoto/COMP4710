@@ -13,6 +13,7 @@ from collections import Counter
 
 winrate = list()
 winrate.append([])
+decknames = list()
 
 arg = sys.argv[1:]
 
@@ -26,6 +27,7 @@ def load_dataset():
 		winrate.append(rate)
 		for i in range(N):
 			name = f.readline().strip()
+			decknames.append(name)
 			cards = f.readline().strip().split()
 			
 			counter = Counter(cards)

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 out='data.txt'
-aux=$(date -v-30d "+%Y %m %d")
+aux=$(date -v-180d "+%Y %m %d")
 _yyyy=$(echo $aux | cut -d' ' -f1)
 _mm=$(echo $aux | cut -d' ' -f2)
 _dd=$(echo $aux | cut -d' ' -f3)
