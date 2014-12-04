@@ -8,10 +8,10 @@
 
 import sys
 import apriorialg as ap
+import heapq as pq
 from collections import Counter
 
 arg = sys.argv[1:]
-
 
 img_domain = 'https://s3-us-west-2.amazonaws.com/hearthstats/cards/'
 
@@ -22,6 +22,7 @@ winrate = list()
 winrate.append([])
 decklist = list()
 namelist = list()
+H = dict()
 
 def load_dataset():
 	f = open('data.txt')
@@ -37,7 +38,6 @@ def load_dataset():
 			name = f.readline().strip()
 			namelist.append(name)
 			cards = f.readline().strip().split()
-			key = N*(k-1)+i
 			decklist.append(cards)
 			
 			counter = Counter(cards)
@@ -59,18 +59,22 @@ def filter_rules(rules):
 			print " + ", rule
 	return rules
 
-for i in range(30)
-	print next(iter(dataset[1]))
-
-def get_deck_score(deck, itemset):
-	L = itemset[:]
-	
-	
+def build_heap(L, support_data):
+    for k in range(1,len(L)):
+        i = k-1;
+        print "k:", k
+        for j in range(0, len(L[i])):
+            A = list(L[i][j])
+            for a in A:
+                if (a in H.viewkeys()) is False:
+                    print "Creating the key ", a
+                    H[a] = []
+                pq.heappush(H[a], (k,support_data[L[i][j]],L[i][j]))
+                         					
 heroes, dataset = load_dataset()
 
 print "Amount of decks:", len(decklist)
 print namelist[0], decklist[0]
-print "Win rate", decklist
 
 L, support_data = ap.apriori(dataset, minsupport)
 rules = ap.generateRules(L, support_data, min_confidence)
@@ -83,5 +87,9 @@ print "Amount of rules:", len(rules)
 rules = filter_rules(rules)
 print "New amount of rules:", len(rules)
 # removing obvious rules:
+build_heap(L,support_data)
+for hero in heroes:
+    if hero in H.viewkeys():
+        print hero, ':\n', H[hero]
 
  
