@@ -60,16 +60,19 @@ def filter_rules(rules):
 	return rules
 
 def build_heap(L, support_data):
-    for k in range(1,len(L)):
-        i = k-1;
-        print "k:", k
+    H['Any'] = []    
+    for i in range(len(L)-1):
         for j in range(0, len(L[i])):
             A = list(L[i][j])
             for a in A:
-                if (a in H.viewkeys()) is False:
+                if(a in H.viewkeys()) is False:
                     print "Creating the key ", a
                     H[a] = []
-                pq.heappush(H[a], (k,support_data[L[i][j]],L[i][j]))
+                if(len(L[i][j].intersection(set(heroes))) == 0):
+                    t = (i+1,support_data[L[i][j]],L[i][j])
+                    if((t in H['Any']) is not True):
+                        pq.heappush(H['Any'], t)
+                pq.heappush(H[a], (i,support_data[L[i][j]],L[i][j]))
                          					
 heroes, dataset = load_dataset()
 
@@ -79,17 +82,29 @@ print namelist[0], decklist[0]
 L, support_data = ap.apriori(dataset, minsupport)
 rules = ap.generateRules(L, support_data, min_confidence)
 
+total = 0
 print '\nL:'
 for l in L:
-	print " * ", l
+    print " * ", len(l), l
+    total += len(l)
+
+print "Total of itemsets supported:", total
 
 print "Amount of rules:", len(rules)
 rules = filter_rules(rules)
 print "New amount of rules:", len(rules)
 # removing obvious rules:
 build_heap(L,support_data)
+print "Lengh of Any:", len(H['Any'])
 for hero in heroes:
     if hero in H.viewkeys():
         print hero, ':\n', H[hero]
 
- 
+count = Counter(H['Any'])
+print "Lengh of Counter(Any):", len(count)
+print count
+
+print "\nAmount of keys:", len(H)
+oH = list(H.viewkeys())
+oH.sort()
+print oH 
