@@ -23,6 +23,7 @@ winrate.append([])
 decklist = list()
 namelist = list()
 H = dict()
+class_cards = dict()
 
 def load_dataset():
 	f = open('data.txt')
@@ -48,16 +49,21 @@ def load_dataset():
 	return heroes, dataset
 
 def filter_rules(rules):
-	print '\nRules:'
-	for rule in rules[:]:
-		if(rule[2] == 1.0 and len(rule[1]) == 1):
-			r = next(iter(rule[1]))
-			if(r in heroes):
-				print " - ", rule
-				rules.remove(rule)
-		else:
-			print " + ", rule
-	return rules
+    print '\nRules:'
+    for hero in heroes:
+        class_cards[hero] = list()
+    for rule in rules[:]:
+        if(rule[2] == 1.0 and len(rule[1]) == 1):
+            r = next(iter(rule[1]))
+            if(r in heroes):
+                print " - ", rule
+                class_cards[r].append(rule[0])
+                rules.remove(rule)
+        else:
+            print " + ", rule
+    
+    print class_cards
+    return rules
 
 def build_heap(L, support_data):
     H['Any'] = []    
@@ -94,17 +100,23 @@ print "Amount of rules:", len(rules)
 rules = filter_rules(rules)
 print "New amount of rules:", len(rules)
 # removing obvious rules:
+
 build_heap(L,support_data)
 print "Lengh of Any:", len(H['Any'])
 for hero in heroes:
     if hero in H.viewkeys():
         print hero, ':\n', H[hero]
 
-count = Counter(H['Any'])
-print "Lengh of Counter(Any):", len(count)
-print count
+#count = Counter(H['Any'])
+#print "Lengh of Counter(Any):", len(count)
+#print count
 
-print "\nAmount of keys:", len(H)
+print "\nAmount of different relevant cards (keys):", len(H) - 10
 oH = list(H.viewkeys())
 oH.sort()
-print oH 
+print oH[10:]
+
+print '\n List of class exclusive cards:'
+for hero in heroes:
+    print  ' (', len(class_cards[hero]), ')', hero
+    print '\t', class_cards[hero]
