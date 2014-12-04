@@ -59,6 +59,12 @@ def filter_rules(rules):
 			print " + ", rule
 	return rules
 
+for i in range(30)
+	print next(iter(dataset[1]))
+
+def get_deck_score(deck, itemset):
+	L = itemset[:]
+	
 	
 heroes, dataset = load_dataset()
 
