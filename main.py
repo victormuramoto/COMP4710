@@ -1,17 +1,32 @@
 # -*- coding: utf-8 -*-
 import json
 from pprint import pprint       
+json_data = open('AllSets.json')
+data = json.load(json_data)
+#pprint(data)
+json_data.close 
+
+allcards = dict()
+for key in data.viewkeys():
+	for item in data[key]:
+		t = item['type']
+		if(t == 'Minion' or t == 'Spell' or t == 'Weapon'):
+			if not 'cost' in item.viewkeys() :
+				cost = 0
+			else:
+				cost = item['cost']
+			allcards[item['id']] = [item['name'], cost]
+
+#for card in allcards:
+#	print card, allcards[card]
+
+
 import sys
 import apriorialg as ap
 import heapq as pq
 from collections import Counter
 
 arg = sys.argv[1:]
-
-json_data = open('AllSets.json')
-data = json.load(json_data)
-#pprint(data)
-json_data.close 
 
 img_domain = 'https://s3-us-west-2.amazonaws.com/hearthstats/cards/'
 
@@ -24,6 +39,9 @@ decklist = list()
 namelist = list()
 H = dict()
 class_cards = dict()
+
+def tostring(t):
+	return ' <{}> {} ({})'.format(allcards[t[0]][1], allcards[t[0]][0], t[1])
 
 def load_dataset():
 	f = open('data.txt')
@@ -52,13 +70,15 @@ def load_dataset():
 def filter_rules(rules):
     print '\nRules:'
     for hero in heroes:
-        class_cards[hero] = list()
+        class_cards[hero] = set()
     for rule in rules[:]:
         if(rule[2] == 1.0 and len(rule[1]) == 1):
             r = next(iter(rule[1]))
             if(r in heroes):
                 print " - ", rule
-                class_cards[r].append(rule[0])
+                print rule[0]
+                print type(class_cards[r])
+                class_cards[r] = class_cards[r].union(rule[0])
                 rules.remove(rule)
         else:
             print " + ", rule
@@ -74,7 +94,7 @@ def build_heap(L, support_data):
             A = list(L[i][j])
             for a in A:
                 if(a in H.viewkeys()) is False:
-                    print "Creating the key ", a
+                    #print "Creating the key ", a
                     H[a] = []
                 if(len(L[i][j].intersection(set(heroes))) == 0):
                     t = (-(i+1),-(i+1)*support_data[L[i][j]],L[i][j])
@@ -135,7 +155,7 @@ def build_best_scored_deck(hero):
 			weight = 0
 			print "Size: ", size
 			for card in newcards:
-				print type(card), card
+				print tostring(card)
 				weight += card[1] 
 			
 			if(weight + size <= 30):
@@ -163,41 +183,41 @@ L, support_data = ap.apriori(dataset, minsupport)
 rules = ap.generateRules(L, support_data, min_confidence)
 
 total = 0
-print '\nL:'
-for l in L:
-    print " * ", len(l), l
-    total += len(l)
+#print '\nL:'
+#for l in L:
+ #   print " * ", len(l), l
+  #  total += len(l)
 
-print "Total of itemsets supported:", total
+#print "Total of itemsets supported:", total
 
-print "Amount of rules:", len(rules)
+#print "Amount of rules:", len(rules)
 rules = filter_rules(rules)
-print "New amount of rules:", len(rules)
+#print "New amount of rules:", len(rules)
 # removing obvious rules:
 
 build_heap(L,support_data)
-print "Lengh of Any:", len(H['Any'])
-for hero in heroes:
-    if hero in H.viewkeys():
-        print hero, ':\n', H[hero]
+#print "Lengh of Any:", len(H['Any'])
+#for hero in heroes:
+ #   if hero in H.viewkeys():
+  #      print hero, ':\n', H[hero]
 
 #count = Counter(H['Any'])
 #print "Lengh of Counter(Any):", len(count)
 #print count
 
-print "\nAmount of different relevant cards (keys):", len(H) - 10
-oH = list(H.viewkeys())
-oH.sort()
-print oH[10:]
+#print "\nAmount of different relevant cards (keys):", len(H) - 10
+#oH = list(H.viewkeys())
+#oH.sort()
+#print oH[10:]
 
 print '\n List of class exclusive cards:'
 for hero in heroes:
     print  ' (', len(class_cards[hero]), ')', hero
     print '\t', class_cards[hero]
 
-hero = 'Rogue'
+hero = 'Shaman'
 deck, score = build_best_scored_deck(hero)
 print 'The best scored deck for ', hero, ':'
 for card in list(deck):
-	print ' - ', card
+	print ' -', tostring(t)
 print '\nSynergy (score):', score
