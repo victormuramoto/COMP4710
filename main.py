@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
-#import json
-#from pprint import pprint
-#json_data = open('AllSets.json')
-#data = json.load(json_data)
-#pprint(data)
-#json_data.close         
-
+import json
+from pprint import pprint       
 import sys
 import apriorialg as ap
 import heapq as pq
 from collections import Counter
 
 arg = sys.argv[1:]
+
+json_data = open('AllSets.json')
+data = json.load(json_data)
+#pprint(data)
+json_data.close 
 
 img_domain = 'https://s3-us-west-2.amazonaws.com/hearthstats/cards/'
 
@@ -77,12 +77,11 @@ def build_heap(L, support_data):
                     print "Creating the key ", a
                     H[a] = []
                 if(len(L[i][j].intersection(set(heroes))) == 0):
-                    t = (i+1,support_data[L[i][j]],L[i][j])
+                    t = (-(i+1),-(i+1)*support_data[L[i][j]],L[i][j])
                     if(is_neutral_set(L[i][j]) and (t in H['Any']) is not True):
                         pq.heappush(H['Any'], t)
-                pq.heappush(H[a], (i,support_data[L[i][j]],L[i][j]))
-
-                         					
+                pq.heappush(H[a], (-i,-i*support_data[L[i][j]],L[i][j]))
+                        					
 def is_neutral_set(s):
 	for hero in heroes[1:]:
 		for card in class_cards[hero]:
@@ -90,6 +89,70 @@ def is_neutral_set(s):
 				return False
 	return True
 
+def is_eligible_tuple(t, hero):
+	#print "t[2]: ", t[2]	
+	found = list(set(heroes).intersection(t[2]));
+	#print "found: ", found
+	if(len(found) == 1):
+		found = found[0]
+		return found == hero
+	return True
+	
+def getNextEligibleTuple(e, hero, _H):
+	while True:
+		if len(_H[e]) == 0:
+			return None
+		front = pq.heappop(_H[e])
+		if is_eligible_tuple(front,hero): break
+	
+	return front
+	
+def build_best_scored_deck(hero):
+	deck = set()
+	_H = H.copy()
+	usedCards = list
+	
+	h = []
+	score = 0.0;
+	size = 0;
+	
+	deck.add(hero)
+	pq.heappush(h, (pq.heappop(_H[hero]), hero))
+	
+	while(size < 30 and len(h) > 0):
+		t = pq.heappop(h)
+		e = t[1]
+		
+		front = getNextEligibleTuple(e, hero, _H)					
+		if front is not None:
+			pq.heappush(h, (front, e))
+		
+		t = t[0]
+		cards = t[2]
+		newcards = list(cards - deck)
+		
+		if (len(newcards) > 0):
+			weight = 0
+			print "Size: ", size
+			for card in newcards:
+				print type(card), card
+				weight += card[1] 
+			
+			if(weight + size <= 30):
+				score += t[1];
+				size += weight;
+				deck = deck.union(cards)
+				for card in newcards:
+					front = getNextEligibleTuple(card, hero, _H)
+					if front is not None:
+						pq.heappush(h, (front, card))
+				
+	
+	deck.remove(hero)
+	
+	return deck, -score;	
+
+##########################################################################################
 					
 heroes, dataset = load_dataset()
 
@@ -131,3 +194,10 @@ print '\n List of class exclusive cards:'
 for hero in heroes:
     print  ' (', len(class_cards[hero]), ')', hero
     print '\t', class_cards[hero]
+
+hero = 'Rogue'
+deck, score = build_best_scored_deck(hero)
+print 'The best scored deck for ', hero, ':'
+for card in list(deck):
+	print ' - ', card
+print '\nSynergy (score):', score
