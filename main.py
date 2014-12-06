@@ -48,6 +48,7 @@ def load_dataset():
 		
 	return heroes, dataset
 
+
 def filter_rules(rules):
     print '\nRules:'
     for hero in heroes:
@@ -65,6 +66,7 @@ def filter_rules(rules):
     print class_cards
     return rules
 
+
 def build_heap(L, support_data):
     H['Any'] = []    
     for i in range(len(L)-1):
@@ -76,10 +78,19 @@ def build_heap(L, support_data):
                     H[a] = []
                 if(len(L[i][j].intersection(set(heroes))) == 0):
                     t = (i+1,support_data[L[i][j]],L[i][j])
-                    if((t in H['Any']) is not True):
+                    if(is_neutral_set(L[i][j]) and (t in H['Any']) is not True):
                         pq.heappush(H['Any'], t)
                 pq.heappush(H[a], (i,support_data[L[i][j]],L[i][j]))
+
                          					
+def is_neutral_set(s):
+	for hero in heroes[1:]:
+		for card in class_cards[hero]:
+			if (len(s.intersection(card)) > 0):
+				return False
+	return True
+
+					
 heroes, dataset = load_dataset()
 
 print "Amount of decks:", len(decklist)
