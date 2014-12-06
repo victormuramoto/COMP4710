@@ -68,22 +68,20 @@ def load_dataset():
 
 
 def filter_rules(rules):
-    print '\nRules:'
+    #print '\nRules:'
     for hero in heroes:
         class_cards[hero] = set()
     for rule in rules[:]:
-        if(rule[2] == 1.0 and len(rule[1]) == 1):
+        if(len(rule[1]) == 1):
             r = next(iter(rule[1]))
             if(r in heroes):
-                print " - ", rule
-                print rule[0]
-                print type(class_cards[r])
+     #           print " - ", rule
                 class_cards[r] = class_cards[r].union(rule[0])
                 rules.remove(rule)
-        else:
-            print " + ", rule
+      #  else:
+       #     print " + ", rule
     
-    print class_cards
+    #print class_cards
     return rules
 
 
@@ -98,25 +96,30 @@ def build_heap(L, support_data):
                     H[a] = []
                 if(len(L[i][j].intersection(set(heroes))) == 0):
                     t = (-(i+1),-(i+1)*support_data[L[i][j]],L[i][j])
-                    if(is_neutral_set(L[i][j]) and (t in H['Any']) is not True):
+                    if(class_of_set(L[i][j]) == None and (t in H['Any']) is not True):
                         pq.heappush(H['Any'], t)
                 pq.heappush(H[a], (-i,-i*support_data[L[i][j]],L[i][j]))
                         					
-def is_neutral_set(s):
+def class_of_set(s):
 	for hero in heroes[1:]:
-		for card in class_cards[hero]:
-			if (len(s.intersection(card)) > 0):
-				return False
-	return True
+		if (len(s.intersection(class_cards[hero])) > 0):
+			return hero
+	return None
 
 def is_eligible_tuple(t, hero):
 	#print "t[2]: ", t[2]	
-	found = list(set(heroes).intersection(t[2]));
+    found = list(set(heroes).intersection(t[2]));
 	#print "found: ", found
-	if(len(found) == 1):
-		found = found[0]
-		return found == hero
-	return True
+    if(len(found) == 1):
+        found = found[0]
+        return found == hero
+        
+    for h in heroes:
+        found = list(class_cards[h].intersection(t[2]))
+        if(len(found) > 0 and h != hero):
+            #print "Found: ", h, found            
+            return False
+    return True
 	
 def getNextEligibleTuple(e, hero, _H):
 	while True:
@@ -130,7 +133,7 @@ def getNextEligibleTuple(e, hero, _H):
 def build_best_scored_deck(hero):
 	deck = set()
 	_H = H.copy()
-	usedCards = list
+#	usedCards = list
 	
 	h = []
 	score = 0.0;
@@ -153,9 +156,9 @@ def build_best_scored_deck(hero):
 		
 		if (len(newcards) > 0):
 			weight = 0
-			print "Size: ", size
+			#print "Size: ", size
 			for card in newcards:
-				print tostring(card)
+			#	print card[0], tostring(card)
 				weight += card[1] 
 			
 			if(weight + size <= 30):
@@ -196,7 +199,7 @@ rules = filter_rules(rules)
 # removing obvious rules:
 
 build_heap(L,support_data)
-#print "Lengh of Any:", len(H['Any'])
+print "Lengh of Any:", len(H['Any'])
 #for hero in heroes:
  #   if hero in H.viewkeys():
   #      print hero, ':\n', H[hero]
@@ -215,9 +218,9 @@ for hero in heroes:
     print  ' (', len(class_cards[hero]), ')', hero
     print '\t', class_cards[hero]
 
-hero = 'Shaman'
-deck, score = build_best_scored_deck(hero)
-print 'The best scored deck for ', hero, ':'
-for card in list(deck):
-	print ' -', tostring(t)
-print '\nSynergy (score):', score
+for hero in heroes:
+    deck, score = build_best_scored_deck(hero)
+    print '\nThe best scored deck for ', hero, ':'
+    for card in list(deck):
+        print ' -', tostring(card)
+    print 'Synergy (score):', score
