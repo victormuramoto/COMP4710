@@ -39,6 +39,7 @@ decklist = list()
 namelist = list()
 H = dict()
 class_cards = dict()
+N = 0;
 
 def tostring(t):
 	return ' <{}> {} ({})'.format(allcards[t[0]][1], allcards[t[0]][0], t[1])
@@ -57,13 +58,13 @@ def load_dataset():
 			name = f.readline().strip()
 			namelist.append(name)
 			cards = f.readline().strip().split()
-			decklist.append(cards)
-			
+
 			counter = Counter(cards)
+			decklist.append(counter.items())
 			transaction = counter.items()
 			transaction.append(heroes[k]);
 			dataset.append(transaction)
-		
+
 	return heroes, dataset
 
 
@@ -175,6 +176,43 @@ def build_best_scored_deck(hero):
 	
 	return deck, -score;	
 
+def verify_built_deck(deck, hero):
+	N = len(decklist)/9
+	k = heroes.index(hero)
+	
+	if( k == 0 ): return None, None
+	
+	min_diff = 31
+	deck_id = -1
+	
+	for i in range(N):
+		u = (k-1)*N + i
+		
+		diff, cards = calc_diff_decks(deck, set(decklist[u]))
+		if(diff < min_diff):
+			min_diff = diff
+			deck_id = u
+		if(diff == 0): return deck_id, min_diff
+	
+	return deck_id, min_diff
+
+
+def calc_diff_decks(d1, d2):
+	cards = d1 & d2
+	_d1 = list(d1 - cards)
+	_d2 = list(d2 - cards)
+	
+	for i in range(len(_d1)-1):
+		for j in range(i+1, len(_d2)):
+			if(_d1[i][0] == _d2[j][0]) :
+				cards.add((_d1[i][0],1))
+	
+	count = 0
+	for card in list(cards):
+		count += card[1]
+	
+	return (30 - count), list(cards)		
+		
 ##########################################################################################
 					
 heroes, dataset = load_dataset()
@@ -219,8 +257,16 @@ for hero in heroes:
     print '\t', class_cards[hero]
 
 for hero in heroes:
-    deck, score = build_best_scored_deck(hero)
-    print '\nThe best scored deck for ', hero, ':'
-    for card in list(deck):
-        print ' -', tostring(card)
-    print 'Synergy (score):', score
+	deck, score = build_best_scored_deck(hero)  
+	print '\nThe best scored deck for ', hero, ':'
+	for card in list(deck):
+		print ' -', tostring(card)
+	print 'Synergy (score):', score	
+	
+	id, diff = verify_built_deck(deck, hero)
+	
+	if(id != None):
+		print "Closest Real Deck:"
+		print ' - "', namelist[id], '", with', 30-diff, 'similar cards.'   
+    
+
