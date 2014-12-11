@@ -17,9 +17,6 @@ for key in data.viewkeys():
 				cost = item['cost']
 			allcards[item['id']] = [item['name'], cost]
 
-#for card in allcards:
-#	print card, allcards[card]
-
 
 import sys
 import apriorialg as ap
@@ -47,11 +44,9 @@ def tostring(t):
 def load_dataset():
 	f = open('data.txt')
 	heroes = tuple(f.readline().strip().split())
-	print type(heroes)
 	dataset = list()
 	for k in range(1,10):
 		N = int(f.readline().strip())
-		print N
 		rate = f.readline().strip().split()
 		winrate.append(rate)
 		for i in range(N):
@@ -69,20 +64,19 @@ def load_dataset():
 
 
 def filter_rules(rules):
-    #print '\nRules:'
+    print '\nRules:'
     for hero in heroes:
         class_cards[hero] = set()
     for rule in rules[:]:
         if(len(rule[1]) == 1):
             r = next(iter(rule[1]))
             if(r in heroes):
-     #           print " - ", rule
+                print " - ", rule
                 class_cards[r] = class_cards[r].union(rule[0])
                 rules.remove(rule)
-      #  else:
-       #     print " + ", rule
+        else:
+            print " + ", rule
     
-    #print class_cards
     return rules
 
 
@@ -100,12 +94,14 @@ def build_heap(L, support_data):
                     if(class_of_set(L[i][j]) == None and (t in H['Any']) is not True):
                         pq.heappush(H['Any'], t)
                 pq.heappush(H[a], (-i,-i*support_data[L[i][j]],L[i][j]))
+
                         					
 def class_of_set(s):
 	for hero in heroes[1:]:
 		if (len(s.intersection(class_cards[hero])) > 0):
 			return hero
 	return None
+
 
 def is_eligible_tuple(t, hero):
 	#print "t[2]: ", t[2]	
@@ -121,6 +117,7 @@ def is_eligible_tuple(t, hero):
             #print "Found: ", h, found            
             return False
     return True
+
 	
 def getNextEligibleTuple(e, hero, _H):
 	while True:
@@ -130,11 +127,11 @@ def getNextEligibleTuple(e, hero, _H):
 		if is_eligible_tuple(front,hero): break
 	
 	return front
+
 	
 def build_best_scored_deck(hero):
 	deck = set()
 	_H = H.copy()
-#	usedCards = list
 	
 	h = []
 	score = 0.0;
@@ -157,9 +154,7 @@ def build_best_scored_deck(hero):
 		
 		if (len(newcards) > 0):
 			weight = 0
-			#print "Size: ", size
 			for card in newcards:
-			#	print card[0], tostring(card)
 				weight += card[1] 
 			
 			if(weight + size <= 30):
@@ -172,9 +167,9 @@ def build_best_scored_deck(hero):
 						pq.heappush(h, (front, card))
 				
 	
-	deck.remove(hero)
-	
+	deck.remove(hero)	
 	return deck, -score;	
+
 
 def verify_built_deck(deck, hero):
 	N = len(decklist)/9
@@ -212,44 +207,31 @@ def calc_diff_decks(d1, d2):
 		count += card[1]
 	
 	return (30 - count), list(cards)		
+
 		
 ##########################################################################################
 					
 heroes, dataset = load_dataset()
 
 print "Amount of decks:", len(decklist)
-print namelist[0], decklist[0]
 
 L, support_data = ap.apriori(dataset, minsupport)
 rules = ap.generateRules(L, support_data, min_confidence)
 
 total = 0
-#print '\nL:'
-#for l in L:
- #   print " * ", len(l), l
-  #  total += len(l)
 
-#print "Total of itemsets supported:", total
+print "Total of itemsets supported:", total
 
-#print "Amount of rules:", len(rules)
+print "Amount of rules:", len(rules)
 rules = filter_rules(rules)
-#print "New amount of rules:", len(rules)
-# removing obvious rules:
+print "New amount of rules:", len(rules)
 
 build_heap(L,support_data)
-print "Lengh of Any:", len(H['Any'])
-#for hero in heroes:
- #   if hero in H.viewkeys():
-  #      print hero, ':\n', H[hero]
 
-#count = Counter(H['Any'])
-#print "Lengh of Counter(Any):", len(count)
-#print count
-
-#print "\nAmount of different relevant cards (keys):", len(H) - 10
-#oH = list(H.viewkeys())
-#oH.sort()
-#print oH[10:]
+print "\nAmount of different relevant cards (keys):", len(H) - 10
+oH = list(H.viewkeys())
+oH.sort()
+print oH[10:]
 
 print '\n List of class exclusive cards:'
 for hero in heroes:
